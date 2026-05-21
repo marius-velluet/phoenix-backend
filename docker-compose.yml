@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=phoenix123
+      - DOCKER_INFLUXDB_INIT_ORG=phoenix-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=phoenix-alerts
+      - DOCKER_INFLUXDB_INIT_RETENTION=7d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=phoenix-token-initial
+    restart: unless-stopped
+
+  node-backend:
+    build: ./backend
+    container_name: node-backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mosquitto
+      - influxdb
+    environment:
+      - MQTT_HOST=mosquitto
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+    restart: unless-stopped
+
+  fastapi-sim:
+    image: python:3.11-slim
+    container_name: fastapi-sim
+    ports:
+      - "8000:8000"
+    command: echo "LOT 5 pas encore intégré"
+    restart: "no"
+
+volumes:
+  influxdb_data:
