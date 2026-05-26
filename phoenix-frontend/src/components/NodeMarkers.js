@@ -29,8 +29,11 @@ function createIcon(color) {
 }
 
 function NodeMarkers({ nodeStates }) {
+  // Sécurité : si nodeStates n'est pas encore prêt, on n'affiche rien
+  if (!nodeStates) return null;
+
   return NODES.map(node => {
-    const state     = nodeStates[node.id] || { alert: 0, batt: 0, hops: 0 };
+    const state = nodeStates[node.id] || { alert: 0, batt: 0, hops: 0 };
     const color     = getColor(state.alert);
     const alertText = state.alert >= 2 ? '🔴 Feu avéré'
                     : state.alert === 1 ? '🟠 Suspicion'
