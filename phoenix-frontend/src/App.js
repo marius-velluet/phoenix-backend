@@ -1,10 +1,11 @@
 import React from 'react';
+import PhoenixMap from './components/PhoenixMap';
 import './App.css';
 
 function App() {
   return (
-    <div>
-      <h1>PHOENIX — Surveillance Incendie</h1>
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <PhoenixMap />
     </div>
   );
 }
