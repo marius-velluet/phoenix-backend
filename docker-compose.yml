@@ -38,8 +38,8 @@ services:
       - influxdb
     environment:
       - MQTT_HOST=mosquitto
-      - INFLUX_URL=http://influxdb:8086
-      - INFLUX_TOKEN=${INFLUX_TOKEN}
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${INFLUX_TOKEN}
     restart: unless-stopped
 
   fastapi-sim:
