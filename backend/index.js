@@ -122,16 +122,14 @@ app.get('/health', (req, res) => {
 app.get('/api/alerts', async (req, res) => {
   const nodeFilter = req.query.node;
 
-  // Requête Flux : 24 dernières heures, triées par date décroissante
   let query = `
     from(bucket: "${influxBucket}")
       |> range(start: -24h)
       |> filter(fn: (r) => r._measurement == "fire_alerts")
   `;
 
-  // Filtre optionnel par nœud
   if (nodeFilter) {
-    query += `|> filter(fn: (r) => r.node_id == "${nodeFilter}")`;
+    query += `  |> filter(fn: (r) => r.node_id == "${nodeFilter}")\n`;
   }
 
   query += `
@@ -141,27 +139,20 @@ app.get('/api/alerts', async (req, res) => {
   `;
 
   try {
-    const results = [];
-    await queryApi.collectRows(query, {
-      next(row, tableMeta) {
-        results.push({
-          timestamp:       row._time,
-          node_id:         row.node_id,
-          alert_level:     row.alert_level,
-          hop_count:       row.hop_count,
-          battery_voltage: row.battery_voltage
-        });
-      },
-      error(error) {
-        throw error;
-      },
-      complete() {}
-    });
+    const results = await queryApi.collectRows(query);
 
-    res.json({ count: results.length, alerts: results });
+    const alerts = results.map(row => ({
+      timestamp:       row._time,
+      node_id:         row.node_id,
+      alert_level:     row.alert_level,
+      hop_count:       row.hop_count,
+      battery_voltage: row.battery_voltage
+    }));
+
+    res.json({ count: alerts.length, alerts });
 
   } catch (error) {
-    console.error('❌ Erreur requête InfluxDB :', error);
+    console.error('❌ Erreur requête InfluxDB :', error.message);
     res.status(500).json({ error: 'Erreur lors de la récupération des alertes' });
   }
 });
