@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// Positions GPS provisoires des 3 nœuds terrain sur le campus
-// À mettre à jour avec les vraies positions quand le LOT 1/3 les fournira
 export const NODES = [
   { id: 1, lat: 48.8395, lng: 2.5872, label: 'Nœud 1' },
   { id: 2, lat: 48.8391, lng: 2.5878, label: 'Nœud 2' },
@@ -9,63 +7,107 @@ export const NODES = [
 ];
 
 function useAlerts() {
-  // État des alertes par nœud : { 1: {alert: 0, batt: 0, hops: 0}, ... }
   const [nodeStates, setNodeStates] = useState(
     Object.fromEntries(NODES.map(n => [n.id, { alert: 0, batt: 0, hops: 0 }]))
   );
+  const [alertHistory, setAlertHistory]   = useState([]);
+  const [wsStatus, setWsStatus]           = useState('Déconnecté');
+  const [geoJsonLayers, setGeoJsonLayers] = useState([]);
 
-  // Historique des 10 dernières alertes pour le dashboard
-  const [alertHistory, setAlertHistory] = useState([]);
+  // Appel FastAPI pour récupérer les polygones GeoJSON
+  async function fetchSimulation(nodeId, lat, lon, timestamp) {
+    try {
+      console.log(`🔥 Appel simulation pour nœud ${nodeId}...`);
+      const response = await fetch('http://localhost:8000/simulate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          node_id:   nodeId,
+          lat:       lat,
+          lon:       lon,
+          timestamp: timestamp || new Date().toISOString()
+        })
+      });
 
-  // Statut de la connexion WebSocket
-  const [wsStatus, setWsStatus] = useState('Déconnecté');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data = await response.json();
+      console.log(`✅ GeoJSON reçu — ${data.geojson_polygons.features.length} isochrones`);
+      setGeoJsonLayers(data.geojson_polygons.features);
+
+    } catch (error) {
+      console.error('❌ Erreur simulation FastAPI :', error);
+    }
+  }
 
   useEffect(() => {
+
     // Chargement initial de l'historique via l'API REST
     fetch('http://localhost:3000/api/alerts')
       .then(r => r.json())
       .then(data => {
         if (data.alerts) setAlertHistory(data.alerts.slice(0, 10));
       })
-      .catch(err => console.error('Erreur chargement historique :', err));
+      .catch(err => console.error('Erreur historique :', err));
 
-    // Connexion WebSocket au backend Node.js
-    const ws = new WebSocket('ws://localhost:3000');
+    // Connexion WebSocket avec reconnexion automatique
+    let ws;
+    let reconnectTimeout;
 
-    ws.onopen = () => {
-      console.log('✅ WebSocket connecté');
-      setWsStatus('Connecté');
-    };
+    function connectWebSocket() {
+      ws = new WebSocket('ws://localhost:3000');
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('📨 Alerte WebSocket reçue :', data);
+      ws.onopen = () => {
+        console.log('✅ WebSocket connecté');
+        setWsStatus('Connecté');
+      };
 
-      // Mise à jour de l'état du nœud concerné
-      setNodeStates(prev => ({
-        ...prev,
-        [data.node]: { alert: data.alert, batt: data.batt, hops: data.hops }
-      }));
+      ws.onclose = () => {
+        console.log('🔌 WebSocket déconnecté — reconnexion dans 3s...');
+        setWsStatus('Déconnecté');
+        // Reconnexion automatique après 3 secondes
+        reconnectTimeout = setTimeout(connectWebSocket, 3000);
+      };
 
-      // Ajout en tête de l'historique (max 10 entrées)
-      setAlertHistory(prev => [data, ...prev].slice(0, 10));
-    };
+      ws.onerror = () => {
+        setWsStatus('Erreur');
+        ws.close();
+      };
 
-    ws.onclose = () => {
-      console.log('🔌 WebSocket déconnecté');
-      setWsStatus('Déconnecté');
-    };
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('📨 Alerte WebSocket :', data);
 
-    ws.onerror = (err) => {
-      console.error('❌ Erreur WebSocket :', err);
-      setWsStatus('Erreur');
-    };
+        // Mise à jour de l'état du nœud concerné
+        setNodeStates(prev => ({
+          ...prev,
+          [data.node]: { alert: data.alert, batt: data.batt, hops: data.hops }
+        }));
+
+        // Ajout en tête de l'historique (max 10 entrées)
+        setAlertHistory(prev => [data, ...prev].slice(0, 10));
+
+        // Appel simulation seulement si alerte réelle (niveau ≥ 1)
+        if (data.alert >= 1) {
+          const node = NODES.find(n => n.id === data.node);
+          if (node) {
+            fetchSimulation(node.id, node.lat, node.lng, data.timestamp);
+          }
+        }
+      };
+    }
+
+    connectWebSocket();
 
     // Nettoyage à la destruction du composant
-    return () => ws.close();
+    return () => {
+      clearTimeout(reconnectTimeout);
+      if (ws) ws.close();
+    };
+
   }, []);
 
-  return { nodeStates, alertHistory, wsStatus };
+  return { nodeStates, alertHistory, wsStatus, geoJsonLayers };
 }
 
 export default useAlerts;

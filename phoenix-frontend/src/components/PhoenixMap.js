@@ -1,11 +1,12 @@
 import React from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import NodeMarkers from './NodeMarkers';
+import FireLayers  from './FireLayers';
 
 const CAMPUS_CENTER = [48.8393, 2.5874];
 const CAMPUS_ZOOM   = 17;
 
-function PhoenixMap({ nodeStates }) {
+function PhoenixMap({ nodeStates, geoJsonLayers }) {
   return (
     <MapContainer
       center={CAMPUS_CENTER}
@@ -17,6 +18,7 @@ function PhoenixMap({ nodeStates }) {
         attribution='&copy; OpenStreetMap contributors'
       />
       <NodeMarkers nodeStates={nodeStates} />
+      <FireLayers  geoJsonLayers={geoJsonLayers} />
     </MapContainer>
   );
 }

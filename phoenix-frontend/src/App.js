@@ -1,11 +1,11 @@
 import React from 'react';
 import PhoenixMap from './components/PhoenixMap';
-import Dashboard from './components/Dashboard';
-import useAlerts from './hooks/useAlerts';
+import Dashboard  from './components/Dashboard';
+import useAlerts  from './hooks/useAlerts';
 import './App.css';
 
 function App() {
-  const { nodeStates, alertHistory, wsStatus } = useAlerts();
+  const { nodeStates, alertHistory, wsStatus, geoJsonLayers } = useAlerts();
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -13,7 +13,10 @@ function App() {
         alertHistory={alertHistory}
         wsStatus={wsStatus}
       />
-      <PhoenixMap nodeStates={nodeStates} />
+      <PhoenixMap
+        nodeStates={nodeStates}
+        geoJsonLayers={geoJsonLayers}
+      />
     </div>
   );
 }

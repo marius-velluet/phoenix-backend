@@ -43,12 +43,13 @@ services:
     restart: unless-stopped
 
   fastapi-sim:
-    image: python:3.11-slim
+    build: ./simulation
     container_name: fastapi-sim
     ports:
       - "8000:8000"
-    command: echo "LOT 5 pas encore intégré"
-    restart: "no"
+    environment:
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+    restart: unless-stopped
 
 volumes:
   influxdb_data:

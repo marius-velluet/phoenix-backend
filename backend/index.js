@@ -3,9 +3,11 @@ const mqtt = require('mqtt');
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
 const { WebSocketServer } = require('ws');
 const http = require('http');
+const cors = require('cors');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // ── Configuration InfluxDB ─────────────────────────────────
 const influxUrl    = process.env.INFLUXDB_URL    || 'http://influxdb:8086';
@@ -75,7 +77,11 @@ mqttClient.on('message', (topic, message) => {
     console.log('📨 Alerte reçue :', message.toString());
 
     try {
-      const data = JSON.parse(message.toString());
+      // Correction automatique du JSON sans guillemets autour des clés
+      // Exemple : {node:1,alert:2} → {"node":1,"alert":2}
+      const raw = message.toString()
+        .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+      const data = JSON.parse(raw);
 
       // ── Persistance InfluxDB ───────────────────────────
       const point = new Point('fire_alerts')
