@@ -3,8 +3,8 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import NodeMarkers from './NodeMarkers';
 import FireLayers  from './FireLayers';
 
-const CAMPUS_CENTER = [48.8393, 2.5874];
-const CAMPUS_ZOOM   = 17;
+const CAMPUS_CENTER = [48.838466, 2.583314];
+const CAMPUS_ZOOM   = 16;
 
 function PhoenixMap({ nodeStates, geoJsonLayers }) {
   return (

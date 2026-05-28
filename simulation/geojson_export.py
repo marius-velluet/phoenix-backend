@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     # 1. Météo réelle
     print("\n📡 Récupération météo...")
-    wind = get_wind_data(48.8399, 2.5878)
+    wind = get_wind_data(48.84013163789159, 2.5837427716557353)
 
     # 2. Simulation
     print("\n🔥 Lancement simulation...")

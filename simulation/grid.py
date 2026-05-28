@@ -2,12 +2,12 @@
 import numpy as np
 
 # Résolution de la grille
-GRID_SIZE   = 100        # 50×50 cases = zone de 500m × 500m
+GRID_SIZE   = 50        # 50×50 cases = zone de 500m × 500m
 CELL_SIZE_M = 10        # chaque case = 10 mètres
 
 # Coin haut-gauche de la grille (campus ESIEE Paris)
-ORIGIN_LAT = 48.84013163789159
-ORIGIN_LON = 2.5837427716557353
+ORIGIN_LAT = 48.842719
+ORIGIN_LON = 2.584441
 
 # Types de cellules
 BETON    = 0

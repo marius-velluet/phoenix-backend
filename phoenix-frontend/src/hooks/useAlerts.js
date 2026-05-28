@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 export const NODES = [
-  { id: 1, lat: 48.8395, lng: 2.5872, label: 'Nœud 1' },
-  { id: 2, lat: 48.8391, lng: 2.5878, label: 'Nœud 2' },
-  { id: 3, lat: 48.8388, lng: 2.5874, label: 'Nœud 3' },
+  { id: 1, lat: 48.835417, lng: 2.578168, label: 'Nœud 1' },
+  { id: 2, lat: 48.837918, lng: 2.581005, label: 'Nœud 2' },
+  { id: 3, lat: 48.840029, lng: 2.580233, label: 'Nœud 3' },
 ];
 
 function useAlerts() {
