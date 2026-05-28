@@ -333,5 +333,5 @@ Ta clé OpenWeatherMap est invalide ou non activée. Les clés peuvent mettre ju
 
 ## Auteur
 
-LOT 6 développé par **[Ton Prénom Nom]** — ESIEE Paris, promotion E3 2025-2026  
+LOT 6 développé par **[Marius VELLUET et Valentin POCLET]** — ESIEE Paris, promotion E3 2025-2026  
 Projet PHOENIX — Réseau Maillé LoRa de Détection Ultra-Précoce d'Incendie par Edge AI
