@@ -5,32 +5,22 @@ import numpy as np
 GRID_SIZE   = 50        # 50×50 cases = zone de 500m × 500m
 CELL_SIZE_M = 10        # chaque case = 10 mètres
 
-# Coin haut-gauche de la grille (campus ESIEE Paris)
-ORIGIN_LAT = 48.842719
-ORIGIN_LON = 2.584441
+# Coordonnées GPS de ta forêt (à ajuster selon l'emplacement réel)
+ORIGIN_LAT = 48.84013163789159
+ORIGIN_LON = 2.5837427716557353
 
-# Types de cellules
-BETON    = 0
+# Types de cellules — on garde BETON et BATIMENT au cas où
+# mais la grille n'en contient plus
+BETON      = 0
 VEGETATION = 1
 BATIMENT   = 2
 
 def create_campus_grid() -> np.ndarray:
     """
-    Crée une grille 50x50 représentant le campus ESIEE.
+    Grille 50×50 représentant une zone forestière.
+    100% végétation — aucun obstacle pour le feu.
     """
-    grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.int8)
-
-    # Bâtiments
-    grid[5:20,  10:35] = BATIMENT
-    grid[25:35, 15:30] = BATIMENT
-
-    # Zones végétalisées
-    grid[0:5,   :]     = VEGETATION
-    grid[35:,   :]     = VEGETATION
-    grid[:,   0:8]     = VEGETATION
-    grid[:,  42:]      = VEGETATION
-    grid[20:25, 5:45]  = VEGETATION
-
+    grid = np.ones((GRID_SIZE, GRID_SIZE), dtype=np.int8)
     return grid
 
 
@@ -55,11 +45,11 @@ if __name__ == "__main__":
     grid = create_campus_grid()
 
     symboles = {0: "░", 1: "🌿", 2: "█"}
-    print("Carte du campus (🌿=végétation, █=bâtiment, ░=asphalte)\n")
+    print("Carte de la forêt (🌿=végétation)\n")
     for row in grid:
         print(" ".join(symboles[cell] for cell in row))
 
     print(f"\nGrille : {GRID_SIZE}×{GRID_SIZE} cases de {CELL_SIZE_M}m")
     print(f"Végétation : {np.sum(grid == VEGETATION)} cases")
     print(f"Bâtiments  : {np.sum(grid == BATIMENT)} cases")
-    print(f"Asphalte   : {np.sum(grid == BETON)} cases")
+    print(f"Béton      : {np.sum(grid == BETON)} cases")
