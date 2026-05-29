@@ -107,7 +107,7 @@ function useAlerts() {
 
   }, []);
 
-  return { nodeStates, alertHistory, wsStatus, geoJsonLayers };
+  return { nodeStates, alertHistory, wsStatus, geoJsonLayers, fetchSimulation };
 }
 
 export default useAlerts;

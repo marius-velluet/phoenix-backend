@@ -6,8 +6,8 @@ GRID_SIZE   = 50        # 50×50 cases = zone de 500m × 500m
 CELL_SIZE_M = 10        # chaque case = 10 mètres
 
 # Coordonnées GPS de ta forêt (à ajuster selon l'emplacement réel)
-ORIGIN_LAT = 48.84013163789159
-ORIGIN_LON = 2.5837427716557353
+ORIGIN_LAT = 48.840565
+ORIGIN_LON = 2.577569
 
 # Types de cellules — on garde BETON et BATIMENT au cas où
 # mais la grille n'en contient plus
